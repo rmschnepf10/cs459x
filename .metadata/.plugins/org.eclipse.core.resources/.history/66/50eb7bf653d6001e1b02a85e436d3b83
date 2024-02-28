@@ -1,0 +1,57 @@
+package assignment3;
+
+import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class RSAKeyGen {
+	String path1;
+	String path2;
+	
+	public RSAKeyGen(String path1, String path2) {
+		this.path1 = path1;
+		this.path2 = path2;
+	}
+	
+	public KeyPair generateRSAKeyPair() throws NoSuchAlgorithmException {
+		KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA");
+		kpGen.initialize(2048);
+		
+		KeyPair RSAkp = kpGen.generateKeyPair();
+		
+		return RSAkp;
+	}
+	
+	public void storePublicKeyToFile(PublicKey publicKey, String filePath) throws IOException {
+		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
+		FileOutputStream fos = new FileOutputStream(filePath);
+		fos.write(x509EncodedKeySpec.getEncoded());
+		fos.close();
+	}
+	
+	public void storePrivateKeyToFile(PrivateKey privateKey, String filePath) throws IOException {
+		PKCS8EncodedKeySpec pkcs38EncodeKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
+		FileOutputStream fos = new FileOutputStream(filePath);
+		fos.write(pkcs38EncodeKeySpec.getEncoded());
+		fos.close();
+	}
+	
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			  System.out.println("Usage: java RSAKeyGen <filePath1> <filePath2>");
+	            return;
+		}
+		
+		String path1 = args[0];
+		String path2 = args[1];
+		
+        RSAKeyGen rsakeygen = new RSAKeyGen(path1, path2);
+        
+        
+
+		
+	}
+}

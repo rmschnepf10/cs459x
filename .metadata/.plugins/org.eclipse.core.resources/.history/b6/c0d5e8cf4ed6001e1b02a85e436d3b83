@@ -1,0 +1,26 @@
+package assignment3;
+import java.security.*;
+import java.io.File;
+
+public class RSAKeyGen () {
+	String path1;
+	String path2;
+	
+	public RSAKeyGen(String path1, String path2) {
+		this.path1 = path1;
+	}
+	
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			  System.out.println("Usage: java RSAKeyGen <filePath1> <filePath2>");
+	            return;
+		}
+		
+		String path1 = args[0];
+		String path2 = args[1];
+		
+        RSAKeyGen keyGen = new RSAKeyGen(path1, path2);
+
+		
+	}
+}

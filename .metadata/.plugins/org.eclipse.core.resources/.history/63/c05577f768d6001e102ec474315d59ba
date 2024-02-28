@@ -1,0 +1,109 @@
+package assignment3;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class EncFile {
+	String publicKeyFilePath;
+	String privateKeyFilePath;
+	String txtfilePath;
+	String newfilePath;
+	
+	//Initialized within readTheFiles
+	PublicKey publicKeyFromFile;
+	PrivateKey privateKeyFromFile;
+	String plainTextStringFromFile;
+	
+	//Initialized within AESKey and IV Creation
+	SecretKey AESKey;
+	byte[] IV;
+	
+		
+
+	public EncFile(String publicKeyFilePath, String privateKeyFilePath, String txtfilePath, String newfilePath) {
+		this.publicKeyFilePath = publicKeyFilePath;
+		this.privateKeyFilePath = privateKeyFilePath;
+		this.txtfilePath = txtfilePath;
+		this.newfilePath = newfilePath;
+	}
+
+	public void readTheFiles() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		//Read Public Key & Restore
+	    byte[] publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyFilePath));
+	    publicKeyFromFile = readFileAndStorePublicKey(publicKeyBytes);
+	    
+	    //Read Private Key & Restore
+	    byte[] privateKeyBytes = Files.readAllBytes(Paths.get(privateKeyFilePath));
+	    privateKeyFromFile = readFileAndStorePrivateKey(privateKeyBytes);
+	    
+	    plainTextStringFromFile = new String(Files.readAllBytes(Paths.get(txtfilePath)));
+	}
+
+	// HELPER METHOD, read the files: Parses the public key from a file into a
+	// PublicKey
+	public PublicKey readFileAndStorePublicKey(byte[] publicKeyBytes)
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		PublicKey key = keyFactory.generatePublic(x509EncodedKeySpec);
+		return key;
+	}
+
+	// HELPER METHOD, read the files: Parses the private key from a file into a
+	// PrivateKey
+	public PrivateKey readFileAndStorePrivateKey(byte[] privateKeyBytes)
+		throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		PKCS8EncodedKeySpec pkcs38EncodeKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		PrivateKey key = keyFactory.generatePrivate(pkcs38EncodeKeySpec);
+		return key;
+	}
+
+	public void generateAESKeyandIV() throws NoSuchAlgorithmException {
+		KeyGenerator kGen = KeyGenerator.getInstance("AES");
+		SecureRandom random = new SecureRandom();
+		kGen.init(random);
+		AESKey = kGen.generateKey();
+		IV = AESKey.getEncoded();
+		
+	}
+
+	public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+		if (args.length != 4) {
+			System.out.println(
+					"Usage: java EncFile <receiver's public key> <sender's private key> <plaintext file> <new file>");
+			return;
+		}
+
+		String publicKeyFilePath = args[0];
+		String privateKeyFilePath = args[1];
+		String txtfilePath = args[2];
+		String newfilePath = args[3];
+
+		EncFile encFile = new EncFile(publicKeyFilePath, privateKeyFilePath, txtfilePath, newfilePath);
+		
+		//this reads the file and stores the info as local variables
+		encFile.readTheFiles();
+		
+		//this creates the two values and stores the info as local variables
+		encFile.generateAESKeyandIV();
+		
+		
+		
+
+	}
+}

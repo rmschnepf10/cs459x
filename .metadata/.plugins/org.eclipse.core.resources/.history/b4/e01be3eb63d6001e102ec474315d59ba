@@ -1,0 +1,50 @@
+package assignment3;
+
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class EncFile {
+	String publicKeyFilePath;
+	String privateKeyFilePath;
+	String txtfilePath;
+	String newfilePath;
+	
+	public EncFile(String publicKeyFilePath, String privateKeyFilePath, String txtfilePath, String newfilePath) {
+		this.publicKeyFilePath = publicKeyFilePath;
+		this.privateKeyFilePath = privateKeyFilePath;
+		this.txtfilePath = txtfilePath;
+		this.newfilePath = newfilePath;
+	}
+	
+	public SecretKey generateAESKey() throws NoSuchAlgorithmException{
+		KeyGenerator kGen = KeyGenerator.getInstance("AES");
+		SecureRandom random = new SecureRandom();
+		kGen.init(random);
+		SecretKey secretKey = kGen.generateKey();
+		return secretKey;
+	}
+	
+
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+		if (args.length != 4) {
+			System.out.println("Usage: java EncFile <receiver's public key> <sender's private key> <plaintext file> <new file>");
+			return;
+		}
+		
+		String publicKeyFilePath = args[0];
+		String privateKeyFilePath = args[1];
+		String txtfilePath = args[2];
+		String newfilePath = args[3];
+		
+		
+		
+        EncFile encFile = new EncFile(publicKeyFilePath, privateKeyFilePath, txtfilePath, newfilePath);
+
+	}
+}

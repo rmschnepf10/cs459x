@@ -1,0 +1,43 @@
+package assignment3;
+
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyGenerator;
+import java.security.NoSuchAlgorithmException;
+
+public class EncFile {
+	
+	public KeyPair generateAESKeyPar() throws NoSuchAlgorithmException {
+		KeyPairGenerator kpGen = KeyPairGenerator.getInstance("AES");
+		kpGen.initialize(128);
+		
+		
+	}
+	
+	public KeyPair generateRSAKeyPair() throws NoSuchAlgorithmException {
+		KeyGenerator kpGen = KeyPairGenerator.getInstance("RSA");
+		kpGen.initialize(2048);
+		
+		KeyPair RSAkp = kpGen.generateKeyPair();
+		
+		return RSAkp;
+	}
+
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+		if (args.length != 4) {
+			System.out.println("Usage: java EncFile <receiver's public key> <sender's private key> <plaintext file> <new file>");
+			return;
+		}
+		
+		String publicKey = args[0];
+		String privateKey = args[1];
+		String txtfilePath = args[2];
+		String newfilePath = args[3];
+		
+		
+		
+        EncFile encfile = new EncFile(path1, path2);
+
+	}
+}

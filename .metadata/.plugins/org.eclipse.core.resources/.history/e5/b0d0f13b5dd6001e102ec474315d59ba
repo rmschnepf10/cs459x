@@ -1,0 +1,85 @@
+package assignment3;
+
+import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class RSAKeyGen {
+	String path1;
+	String path2;
+	
+	//constructor to get the file paths
+	public RSAKeyGen(String path1, String path2) {
+		this.path1 = path1;
+		this.path2 = path2;
+	}
+	
+	//this will generate random RSAKeyPair
+	public KeyPair generateRSAKeyPair() throws NoSuchAlgorithmException {
+		KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA");
+		kpGen.initialize(2048);
+		
+		KeyPair RSAkp = kpGen.generateKeyPair();
+		
+		return RSAkp;
+	}
+	
+	//This stores the public key to a certain file given the file path
+	public void storePublicKeyToFile(PublicKey publicKey, String filePath) throws IOException {
+		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
+		FileOutputStream fos = new FileOutputStream(filePath);
+		fos.write(x509EncodedKeySpec.getEncoded());
+		fos.close();
+	}
+	
+	//same as above but private key
+	public void storePrivateKeyToFile(PrivateKey privateKey, String filePath) throws IOException {
+		PKCS8EncodedKeySpec pkcs38EncodeKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
+		FileOutputStream fos = new FileOutputStream(filePath);
+		fos.write(pkcs38EncodeKeySpec.getEncoded());
+		fos.close();
+	}
+	
+	//This will actually execute the code and utalize the helper methods above
+	public void storeKeysIntoFilePaths() throws NoSuchAlgorithmException, IOException {
+		//generating the keyPairs each of these are going to associate with file path 1 or 2
+		KeyPair kp1 = generateRSAKeyPair();
+		KeyPair kp2 = generateRSAKeyPair();
+		
+		//Identifying the public and private keys for both KeyPairs
+		//kp1 individual assignments 
+		PublicKey publicKey1 = kp1.getPublic();
+		PrivateKey privateKey1 = kp1.getPrivate();		
+		//kp2 individual assignments 
+		PublicKey publicKey2 = kp2.getPublic();
+		PrivateKey privateKey2 = kp2.getPrivate();				
+		
+		//Store Public and Private keys to the file
+		//kp1 assigned both public and private keys
+		storePublicKeyToFile(publicKey1, path1);
+		storePrivateKeyToFile(privateKey1, path1);
+		//kp2 assigned both public and private keys
+		storePublicKeyToFile(publicKey2, path2);
+		storePrivateKeyToFile(privateKey2, path2);
+		
+		
+	}
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+		if (args.length != 2) {
+			System.out.println("Usage: java RSAKeyGen <filePath1> <filePath2>");
+			return;
+		}
+		
+		String path1 = args[0];
+		String path2 = args[1];
+		
+        RSAKeyGen rsakeygen = new RSAKeyGen(path1, path2);
+        
+        rsakeygen.storeKeysIntoFilePaths();
+		
+	}
+}
