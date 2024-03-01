@@ -1,5 +1,7 @@
 package assignment3;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,10 +28,6 @@ public class EncFile {
 	SecretKey AESKey;
 	byte[] IV;
 	
-	
-	
-		
-
 	public EncFile(String publicKeyFilePath, String privateKeyFilePath, String txtfilePath, String newfilePath) {
 		this.publicKeyFilePath = publicKeyFilePath;
 		this.privateKeyFilePath = privateKeyFilePath;
@@ -37,37 +35,34 @@ public class EncFile {
 		this.newfilePath = newfilePath;
 	}
 
-	public void readTheFiles() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		//Read Public Key & Restore
-	    byte[] publicKeyBytes = Files.readAllBytes(Paths.get(publicKeyFilePath));
-	    publicKeyFromFile = readFileAndStorePublicKey(publicKeyBytes);
-	    
-	    //Read Private Key & Restore
-	    byte[] privateKeyBytes = Files.readAllBytes(Paths.get(privateKeyFilePath));
-	    privateKeyFromFile = readFileAndStorePrivateKey(privateKeyBytes);
-	    
-	    plainTextStringFromFile = Files.readAllBytes(Paths.get(txtfilePath));
-	    System.out.println(new String(plainTextStringFromFile));
-	}
-
 	// HELPER METHOD, read the files: Parses the public key from a file into a
 	// PublicKey
-	public PublicKey readFileAndStorePublicKey(byte[] publicKeyBytes)
+	public PublicKey readFileAndStorePublicKey()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		PublicKey key = keyFactory.generatePublic(x509EncodedKeySpec);
-		return key;
+		File filePublicKey = new File(publicKeyFilePath);
+		FileInputStream fis = new FileInputStream(publicKeyFilePath);
+		byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
+		fis.read(encodedPublicKey);
+		fis.close();
+		
+		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedPublicKey);
+		PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(x509EncodedKeySpec);
+		return publicKey;
 	}
 
 	// HELPER METHOD, read the files: Parses the private key from a file into a
 	// PrivateKey
-	public PrivateKey readFileAndStorePrivateKey(byte[] privateKeyBytes)
+	public PrivateKey readFileAndStorePrivateKey()
 		throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		PKCS8EncodedKeySpec pkcs38EncodeKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		PrivateKey key = keyFactory.generatePrivate(pkcs38EncodeKeySpec);
-		return key;
+		File filePrivateKey = new File(privateKeyFilePath);
+		FileInputStream fis = new FileInputStream(privateKeyFilePath);
+		byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
+		fis.read(encodedPrivateKey);
+		fis.close();
+		
+		PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
+		PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec);
+		return privateKey;
 	}
 
 	//This initializes the  AESKey and IV which are declared above as variables 
@@ -100,6 +95,10 @@ public class EncFile {
 		cipher.init(Cipher.ENCRYPT_MODE, publicKeyFromFile);
 		byte[] encryptedAESKey = cipher.doFinal(AESKey.getEncoded());
 		
+		//This is just bring used to print out the size of all the values requested
+		System.out.println("Have encrypted AES key to " + Integer.toString(encryptedAESKey.length ) + " bytes");
+		System.out.println("Have picked a random IV with " + Integer.toString(IV.length ) + " bytes");
+
 		return encryptedAESKey;
 
 	}
@@ -114,7 +113,22 @@ public class EncFile {
 		
 	}
 	
-	public void writeToNewFile() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, SignatureException, IOException {
+	public void writeToNewFile() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, SignatureException, IOException, InvalidKeySpecException {
+		//Read Public Key & Restore
+	    publicKeyFromFile = readFileAndStorePublicKey();
+	    
+	    //Read Private Key & Restore
+	    privateKeyFromFile = readFileAndStorePrivateKey();
+	    
+	    plainTextStringFromFile = Files.readAllBytes(Paths.get(txtfilePath));
+	    
+	    //printing to the command line
+	    System.out.println("Plaintext: ");
+	    System.out.println(new String(plainTextStringFromFile));
+	    
+		//this creates the two values and stores the info as local variables
+		generateAESKeyandIV();
+		
 		byte[] encryptedAES = encryptAESwithRSApubKey();
 		byte[] cipherText = encryptIntoCiphertext();
 		byte[] signature = signatureForPlaintext();		
@@ -126,10 +140,13 @@ public class EncFile {
 		fos.write(signature);
 		fos.close();
 		
-		//This is just bring used to print out the size of all the values requested
 		byte[] newfile_cyphertext = Files.readAllBytes(Paths.get(newfilePath));
-		int numberOfBytes = encryptedAES.length + IV.length + cipherText.length + signature.length + newfile_cyphertext.length;
-		System.out.println(Integer.toString(numberOfBytes));
+
+		
+		//This is just bring used to print out the size of all the values requested
+		System.out.println("Have encrypted  " + Integer.toString(plainTextStringFromFile.length ) + " bytes of plaintext to " + Integer.toString(cipherText.length ) + " bytes of ciphertext.");
+		System.out.println("Have computed signature with " + Integer.toString(signature.length ) + " bytes");
+		System.out.println("Have written " + Integer.toString(newfile_cyphertext.length) + " bytes to file ciphertext.data");
 	}
 
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, SignatureException {
@@ -145,12 +162,6 @@ public class EncFile {
 		String newfilePath = args[3];
 
 		EncFile encFile = new EncFile(publicKeyFilePath, privateKeyFilePath, txtfilePath, newfilePath);
-		
-		//this reads the file and stores the info as local variables
-		encFile.readTheFiles();
-		
-		//this creates the two values and stores the info as local variables
-		encFile.generateAESKeyandIV();
 		
 		//This will execute all the code that will encrypted the plainText and write out the information into the new empty file
 		encFile.writeToNewFile();
