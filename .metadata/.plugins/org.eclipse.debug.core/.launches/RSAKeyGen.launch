@@ -13,6 +13,6 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="assignment3.RSAKeyGen"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="assignment3"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file1-should hold public key.txt&quot; &quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file2-should hold private key.txt&quot;"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file1-should hold reciever's public key.txt&quot; &quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file2-should hold reciever's private key.txt&quot;"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="assignment3"/>
 </launchConfiguration>

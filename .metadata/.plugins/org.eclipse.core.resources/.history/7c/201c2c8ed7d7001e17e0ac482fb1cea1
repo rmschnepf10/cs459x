@@ -1,0 +1,82 @@
+package assignment3;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
+public class DecFile {
+	String privateKeyFilePath;
+	String publicKeyFilePath;
+	String ciphertextFilePath;
+	
+	PublicKey publicKeyFromFile;
+	PrivateKey privateKeyFromFile;
+	
+	public DecFile(String publicKeyFilePath, String privateKeyFilePath, String ciphertextFilePath) {
+		this.publicKeyFilePath = publicKeyFilePath;
+		this.privateKeyFilePath = privateKeyFilePath;
+		this.ciphertextFilePath = ciphertextFilePath;
+	}
+	
+	// HELPER METHOD, read the files: Parses the public key from a file into a
+		// PublicKey
+	public PublicKey readFileAndStorePublicKey()
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		File filePublicKey = new File(publicKeyFilePath);
+		FileInputStream fis = new FileInputStream(publicKeyFilePath);
+		byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
+		fis.read(encodedPublicKey);
+		fis.close();
+		
+		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(encodedPublicKey);
+		PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(x509EncodedKeySpec);
+		return publicKey;
+	}
+
+		// HELPER METHOD, read the files: Parses the private key from a file into a
+		// PrivateKey
+	public PrivateKey readFileAndStorePrivateKey()
+		throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		File filePrivateKey = new File(privateKeyFilePath);
+		FileInputStream fis = new FileInputStream(privateKeyFilePath);
+		byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
+		fis.read(encodedPrivateKey);
+		fis.close();
+		
+		PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKey);
+		PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(pkcs8EncodedKeySpec);
+		return privateKey;
+	}
+	
+	public void decryptTheCiphertext() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+		//Read Public Key & Restore
+	    publicKeyFromFile = readFileAndStorePublicKey();
+	    
+	    //Read Private Key & Restore
+	    privateKeyFromFile = readFileAndStorePrivateKey();
+	    
+	}
+	
+	public static void main(String[] args) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+		if (args.length != 3) {
+			System.out.println(
+					"Usage: java EncFile <receiver's private key> <sender's public key> <ciphertext file>");
+			return;
+		}
+
+		String publicKeyFilePath = args[0];
+		String privateKeyFilePath = args[1];
+		String ciphertextPath = args[2];
+
+		DecFile decFile = new DecFile(publicKeyFilePath, privateKeyFilePath, ciphertextPath);
+		
+		decFile.decryptTheCiphertext();
+	}
+}

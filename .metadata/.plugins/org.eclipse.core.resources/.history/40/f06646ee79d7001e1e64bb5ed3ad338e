@@ -1,0 +1,13 @@
+package assignment3;
+
+public class DecFile {
+	String privateKeyFilePath;
+	String publicKeyFilePath;
+	String ciphertextFilePath;
+	
+	public DecFile(String publicKeyFilePath, String privateKeyFilePath, String ciphertextFilePath) {
+		this.publicKeyFilePath = publicKeyFilePath;
+		this.privateKeyFilePath = privateKeyFilePath;
+		this.ciphertextFilePath = ciphertextFilePath;
+	}
+}

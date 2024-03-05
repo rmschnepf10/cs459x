@@ -20,8 +20,9 @@ public class RSAKeyGen {
 	//this will generate random RSAKeyPair
 	public KeyPair generateRSAKeyPair() throws NoSuchAlgorithmException {
 		KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA");
+		//this makes it 2048 bits (256 bytes)
 		kpGen.initialize(2048);
-		
+	
 		KeyPair RSAkp = kpGen.generateKeyPair();
 		
 		return RSAkp;
@@ -29,6 +30,7 @@ public class RSAKeyGen {
 	
 	//This stores the public key to a certain file given the file path
 	public void storePublicKeyToFile(PublicKey publicKey, String filePath) throws IOException {
+		//This info was given
 		X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKey.getEncoded());
 		FileOutputStream fos = new FileOutputStream(filePath);
 		fos.write(x509EncodedKeySpec.getEncoded());
@@ -37,6 +39,7 @@ public class RSAKeyGen {
 	
 	//same as above but private key
 	public void storePrivateKeyToFile(PrivateKey privateKey, String filePath) throws IOException {
+		//This info was given
 		PKCS8EncodedKeySpec pkcs38EncodeKeySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
 		FileOutputStream fos = new FileOutputStream(filePath);
 		fos.write(pkcs38EncodeKeySpec.getEncoded());
@@ -60,6 +63,7 @@ public class RSAKeyGen {
 	}
 	
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+		//checks to make sure that have enough inputs, if not in correct order the code will not work 
 		if (args.length != 2) {
 			System.out.println("Usage: java RSAKeyGen <filePath1> <filePath2>");
 			return;
@@ -68,8 +72,10 @@ public class RSAKeyGen {
 		String path1 = args[0];
 		String path2 = args[1];
 		
+		//This is creating a instance of rsakeygen that takes in/creates two files
         RSAKeyGen rsakeygen = new RSAKeyGen(path1, path2);
         
+        //this calls the method that will call all other helper methods and actually stores the key into both of the files
         rsakeygen.storeKeysIntoFilePaths();
 		
 	}

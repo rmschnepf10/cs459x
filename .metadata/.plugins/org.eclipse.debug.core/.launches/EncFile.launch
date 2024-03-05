@@ -13,6 +13,6 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="assignment3.EncFile"/>
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="assignment3"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file1-should hold public key.txt&quot; &quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\file2-should hold private key.txt&quot; &quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\plaintext file.txt&quot; &quot;C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\testing\new empty file.txt&quot;"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\src\assignment3\publickeyreciever C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\src\assignment3\privatekeysender C:\Users\colle\undergrad_Y4_S2\cs459x\assignment3\src\assignment3\plaintext.txt cyphertext"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="assignment3"/>
 </launchConfiguration>

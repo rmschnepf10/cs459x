@@ -28,6 +28,7 @@ public class EncFile {
 	SecretKey AESKey;
 	byte[] IV;
 	
+	//constructor to get the file paths/files 
 	public EncFile(String publicKeyFilePath, String privateKeyFilePath, String txtfilePath, String newfilePath) {
 		this.publicKeyFilePath = publicKeyFilePath;
 		this.privateKeyFilePath = privateKeyFilePath;
@@ -39,6 +40,8 @@ public class EncFile {
 	// PublicKey
 	public PublicKey readFileAndStorePublicKey()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		
+		//this info is given 
 		File filePublicKey = new File(publicKeyFilePath);
 		FileInputStream fis = new FileInputStream(publicKeyFilePath);
 		byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
@@ -54,6 +57,8 @@ public class EncFile {
 	// PrivateKey
 	public PrivateKey readFileAndStorePrivateKey()
 		throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		
+		//this info is given 
 		File filePrivateKey = new File(privateKeyFilePath);
 		FileInputStream fis = new FileInputStream(privateKeyFilePath);
 		byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
@@ -67,10 +72,14 @@ public class EncFile {
 
 	//This initializes the  AESKey and IV which are declared above as variables 
 	public void generateAESKeyandIV() throws NoSuchAlgorithmException {
+		//this creates a key of type AES
 		KeyGenerator kGen = KeyGenerator.getInstance("AES");
+		//This is basically a random number generator but makes the values more secure 
 		SecureRandom random = new SecureRandom();
 		kGen.init(random);
+		//this is assigning the AESKey byte array values from the initialized key generator
 		AESKey = kGen.generateKey();
+		//This is creating a Initialization vector from the AESKey
 		IV = AESKey.getEncoded();
 	}
 	
@@ -81,9 +90,12 @@ public class EncFile {
 		//This creates SecretKeySpec with existing AES
 		SecretKeySpec AESKeySpec = new SecretKeySpec(AESKey.getEncoded(), "AES");
 		
+		//create a cipher with the instance specifications given
 		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		//making it encrypt and utilizing the spec IV and AES
 		cipher.init(Cipher.ENCRYPT_MODE, AESKeySpec, IVParamSpec);
 		
+		//this is encrypting the plain text file and then storing it into an array of bytes
 		byte[] cipherOfPlainText = cipher.doFinal(plainTextStringFromFile);
 		
 		return cipherOfPlainText;
@@ -91,8 +103,11 @@ public class EncFile {
 	}
 	
 	public byte[] encryptAESwithRSApubKey() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+		//creating a cipher with the instance of RSA
 		Cipher cipher = Cipher.getInstance("RSA");
+		//making it encrypt mode and setting it to encrypt utilizing the receivers public key 
 		cipher.init(Cipher.ENCRYPT_MODE, publicKeyFromFile);
+		//this is actually encrypting the AES key created earlier
 		byte[] encryptedAESKey = cipher.doFinal(AESKey.getEncoded());
 		
 		//This is just bring used to print out the size of all the values requested
@@ -104,12 +119,16 @@ public class EncFile {
 	}
 	
 	public byte[] signatureForPlaintext() throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-		Signature sig = Signature.getInstance("SHA512withRSA");
-		sig.initSign(privateKeyFromFile);
-		sig.update(plainTextStringFromFile);
-		byte[] signature = sig.sign();
+		//this is creating a Signature with the instance SHA512withRSA
+		Signature signature = Signature.getInstance("SHA512withRSA");
+		//creates signature from privateKeyFromFile
+		signature.initSign(privateKeyFromFile);
+		//this updates the text file
+		signature.update(plainTextStringFromFile);
+		//this grabs the signature byte of size 256
+		byte[] byteSignature = signature.sign();
 		
-		return signature;
+		return byteSignature;
 		
 	}
 	
@@ -129,10 +148,16 @@ public class EncFile {
 		//this creates the two values and stores the info as local variables
 		generateAESKeyandIV();
 		
+		//this call all of the methods explained earlier and assigns them to byte values 
 		byte[] encryptedAES = encryptAESwithRSApubKey();
 		byte[] cipherText = encryptIntoCiphertext();
 		byte[] signature = signatureForPlaintext();		
 		
+		//this is opening/creating the cypher.text file and writing the following items 
+			//encrypted AES
+			//Initialization vector
+			//the plain text that has been encrypted which is called cypher text 
+			//the signature 
 		FileOutputStream fos = new FileOutputStream(newfilePath);
 		fos.write(encryptedAES);
 		fos.write(IV);
@@ -140,6 +165,7 @@ public class EncFile {
 		fos.write(signature);
 		fos.close();
 		
+		//This creates a new byte that combines all of the values written to 
 		byte[] newfile_cyphertext = Files.readAllBytes(Paths.get(newfilePath));
 
 		
@@ -149,6 +175,7 @@ public class EncFile {
 		System.out.println("Have written " + Integer.toString(newfile_cyphertext.length) + " bytes to file ciphertext.data");
 	}
 
+	//all comments for this part are the same as RSAKeyGen other than we have 4 inputs instead of 2
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, SignatureException {
 		if (args.length != 4) {
 			System.out.println(
@@ -156,6 +183,7 @@ public class EncFile {
 			return;
 		}
 
+		
 		String publicKeyFilePath = args[0];
 		String privateKeyFilePath = args[1];
 		String txtfilePath = args[2];
